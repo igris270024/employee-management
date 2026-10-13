@@ -1,9 +1,7 @@
 pipeline {
-
     agent any
 
     stages {
-
         stage('Checkout') {
             steps {
                 echo 'Checking out source code...'
@@ -32,8 +30,8 @@ pipeline {
         stage('Deploy Container') {
             steps {
                 bat '''
-                    docker stop employee-app || exit 0
-                    docker rm employee-app || exit 0
+                    docker stop employee-app >NUL 2>&1
+                    docker rm employee-app >NUL 2>&1
                     docker run -d -p 5000:5000 --name employee-app employee-management
                 '''
             }
@@ -41,15 +39,12 @@ pipeline {
     }
 
     post {
-
         success {
             echo 'CI/CD PIPELINE SUCCESSFUL!'
             echo 'Application deployed successfully.'
         }
-
         failure {
             echo 'BUILD FAILED!'
         }
-
     }
 }
