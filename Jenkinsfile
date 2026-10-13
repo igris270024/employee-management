@@ -11,13 +11,13 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'python -m pip install -r requirements.txt'
+                sh 'python3 -m pip install -r requirements.txt'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'python -m pytest'
+                sh 'python3 -m pytest'
             }
         }
 
@@ -30,8 +30,8 @@ pipeline {
         stage('Deploy Container') {
             steps {
                 sh '''
-                    docker stop employee-app >NUL 2>&1
-                    docker rm employee-app >NUL 2>&1
+                    docker stop employee-app >/dev/null  2>&1 || true
+                    docker rm employee-app >/dev/null 2>&1 || true  
                     docker run -d -p 5000:5000 --name employee-app employee-management
                 '''
             }
