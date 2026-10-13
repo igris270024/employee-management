@@ -4,20 +4,22 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                echo 'Checking out source code...'
                 checkout scm
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh 'python3 -m pip install -r requirements.txt'
+                sh '''
+                    python3 -m venv .venv
+                    .venv/bin/python -m pip install -r requirements.txt
+                '''
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'python3 -m pytest'
+                sh '.venv/bin/python -m pytest'
             }
         }
 
@@ -30,8 +32,8 @@ pipeline {
         stage('Deploy Container') {
             steps {
                 sh '''
-                    docker stop employee-app >/dev/null  2>&1 || true
-                    docker rm employee-app >/dev/null 2>&1 || true  
+                    docker stop employee-app >/dev/null 2>&1 || true
+                    docker rm employee-app >/dev/null 2>&1 || true
                     docker run -d -p 5000:5000 --name employee-app employee-management
                 '''
             }
@@ -40,11 +42,10 @@ pipeline {
 
     post {
         success {
-            echo 'CI/CD PIPELINE SUCCESSFUL!'
-            echo 'Application deployed successfully.'
+            echo 'Pipeline succeeded; application deployed.'
         }
         failure {
-            echo 'BUILD FAILED!'
+            echo 'Build failed. Check the stage errors in Console Output.'
         }
     }
 }
